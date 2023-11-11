@@ -1,6 +1,6 @@
 ## DBChat Client
 
-DBChat is an AI-assistant program integrated with a MySQL client. This project (DBChat Client) is a client that connects to the [GPTBlocks](gptblocks.co/dbchat) endpoint for use with the assistant.
+DBChat is an AI-assistant program integrated with a MySQL client. This project (DBChat Client) is the client that connects to the [GPTBlocks](gptblocks.co/dbchat) endpoint to handle assistant-requested SQL queries.
 
 
 ### Example
