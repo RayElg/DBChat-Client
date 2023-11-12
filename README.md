@@ -20,6 +20,7 @@ ORDER BY total_revenue DESC;
 
 ![Web Example](./webexample.png)
 
+[Youtube Demo](https://www.youtube.com/watch?v=F2pkt9w0Er4)
 
 
 
@@ -30,6 +31,8 @@ To run the DBChat Client, use the following command:
 ```bash
 python client.py [--audit] [--mysql-database <database>] [--mysql-user <username>] [--mysql-password <password>] [--host <host>] [--base-url <base_url>] [--api-header <header>]
 ```
+
+
 
 ### Testing Locally
 
