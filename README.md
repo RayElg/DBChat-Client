@@ -31,6 +31,18 @@ To run the DBChat Client, use the following command:
 python client.py [--audit] [--mysql-database <database>] [--mysql-user <username>] [--mysql-password <password>] [--host <host>] [--base-url <base_url>] [--api-header <header>]
 ```
 
+### Testing Locally
+
+A docker-compose environment has been supplied that installs prerequisites & starts a local mysql server for testing. The contained DBChat container is configured to use the local mysql container.
+
+Ensure you have docker-compose installed, and run the following commands
+```bash
+export GPTBLOCKS_API_KEY=<YOUR KEY FROM GPTBLOCKS>
+docker-compose build && docker-compose up
+```
+
+After both containers have started, you may proceed by chatting on gptblocks.
+
 ### Arguments
 
 The DBChat Client accepts the following arguments:

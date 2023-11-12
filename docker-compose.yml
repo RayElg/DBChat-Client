@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  dbchatclient:
+    volumes:
+      - .:/app
+    working_dir: /app
+    image: python:latest
+    command: >
+      sh -c "pip install -r requirements.txt && python client.py --mysql-database=mydatabase --mysql-user myuser --mysql-password mypassword --host mysql --api-header \"Basic ${GPTBLOCKS_API_KEY}\""
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+
+  mysql:
+    image: mysql:latest
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=mydatabase
+      - MYSQL_USER=myuser
+      - MYSQL_PASSWORD=mypassword
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "--password=secret"]
+      timeout: 5s
+      retries: 15
