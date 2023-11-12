@@ -72,3 +72,5 @@ Basic sk_abcdefghi
 * [ ] Integrate more databases to expand the client's compatibility.
 * [ ] Develop a cloud version of the client that can be self-hosted or used as a service.
 * [ ] Add support for code execution, DBT (Data Build Tool), and other related functionalities.
+* [ ] Per-database context
+* [ ] Improved framework for by-context & by-user function calling
