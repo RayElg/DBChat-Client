@@ -6,7 +6,7 @@ DBChat is an AI-assistant program integrated with a MySQL client. This project (
 ### Example
 
 ```
-$ python client.py --mysql-database=mydatabase --mysql-user myuser --mysql-password mypassword --host localhost
+$ python client.py --mysql-database=mydatabase --mysql-user myuser --mysql-password mypassword --host localhost --context mysql
 Enter API header: Basic sk_...
 
 
@@ -29,7 +29,7 @@ ORDER BY total_revenue DESC;
 To run the DBChat Client, use the following command:
 
 ```bash
-python client.py [--audit] [--mysql-database <database>] [--mysql-user <username>] [--mysql-password <password>] [--host <host>] [--base-url <base_url>] [--api-header <header>]
+python client.py [--audit] [--mysql-database <database>] [--mysql-user <username>] [--mysql-password <password>] [--host <host>] [--base-url <base_url>] [--context <identifier_for_client>] [--api-header <header>]
 ```
 
 
@@ -56,6 +56,7 @@ The DBChat Client accepts the following arguments:
 * `--mysql-password <password>`: The password for the MySQL connection. If not provided, the client will prompt for the password.
 * `--host <host>`: The host for the MySQL connection. If not provided, the client will prompt for the host.
 * `--base-url <base_url>`: The base URL for the GPTBlocks endpoint. If not provided, the client will use the default value.
+* `--context <identifier_for_client>`: The identifier for this client. When users use your DBChat, this is how they will specify the desired client to send queries to.
 * `--api-header <header>`: The API header for authentication. If not provided, the client will prompt for the header.
 
 ### Acquiring API Header
@@ -87,5 +88,5 @@ Basic sk_abcdefghi
 * [ ] Integrate more databases to expand the client's compatibility.
 * [ ] Develop a cloud version of the client that can be self-hosted or used as a service.
 * [ ] Add support for code execution, DBT (Data Build Tool), and other related functionalities.
-* [ ] Per-database context
+* [x] Per-database context
 * [ ] Improved framework for by-context & by-user function calling

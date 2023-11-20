@@ -31,8 +31,8 @@ def get_db_tool_calls(runId, threadId, api_header):
         return None
 
 
-def poll_for_runs(api_header):
-    results = requests.get(f"{BASE_URL}/poll", headers={"Authorization": api_header})
+def poll_for_runs(context, api_header):
+    results = requests.get(f"{BASE_URL}/poll?context={context}", headers={"Authorization": api_header})
     if results.status_code == 200:
         return results.json()
     else:
@@ -53,9 +53,9 @@ def submit_tool_calls(runId, threadId, outputs, api_header):
         return None
 
 
-def user_loop(audit, conn, api_header):
+def user_loop(audit, conn, context, api_header):
     while True:
-        res = poll_for_runs(api_header)
+        res = poll_for_runs(context, api_header)
         if res:
             for run in res:
                 tool_calls = get_db_tool_calls(
@@ -108,6 +108,7 @@ if __name__ == "__main__":
     parser.add_argument("--host", type=str, help="MySQL host")
     parser.add_argument("--base-url", type=str, help="Base URL")
     parser.add_argument("--api-header", type=str, help="API header")
+    parser.add_argument("--context", type=str, help="Context for DBChat - i.e. which client is this host connected to")
     args = parser.parse_args()
 
     MYSQL_DATABASE = args.mysql_database or input("Enter MySQL database name: ")
@@ -116,6 +117,7 @@ if __name__ == "__main__":
     HOST = args.host or input("Enter MySQL host: ")
     BASE_URL = args.base_url or BASE_URL
     API_HEADER = args.api_header or input("Enter API header: ")
+    CONTEXT = "DBChat:" + (args.context or "DEFAULT")
 
     def connect_to_mysql():
         cnx = mysql.connector.connect(
@@ -125,4 +127,4 @@ if __name__ == "__main__":
 
     mysql_connection = connect_to_mysql()
 
-    user_loop(args.audit, mysql_connection, API_HEADER)
+    user_loop(args.audit, mysql_connection, CONTEXT, API_HEADER)
