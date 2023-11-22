@@ -1,7 +1,7 @@
 import time
 import requests
 import mysql.connector
-
+import psycopg2
 BASE_URL = "https://gptblocks.co/dbchat/api"
 
 
@@ -102,29 +102,41 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--audit", action="store_true", help="Enable audit mode")
 
-    parser.add_argument("--mysql-database", type=str, help="MySQL database name")
-    parser.add_argument("--mysql-user", type=str, help="MySQL username")
-    parser.add_argument("--mysql-password", type=str, help="MySQL password")
-    parser.add_argument("--host", type=str, help="MySQL host")
-    parser.add_argument("--base-url", type=str, help="Base URL")
+    parser.add_argument("--postgres", action="store_true", help="Use postgres connection")
+    parser.add_argument("--mysql", action="store_true", help="Use MYSQL connection")
+
+    parser.add_argument("--database", type=str, help="Database name")
+    parser.add_argument("--user", type=str, help="DB Username")
+    parser.add_argument("--password", type=str, help="DB password")
+    parser.add_argument("--host", type=str, help="DB host")
+    parser.add_argument("--port", type=str, help="DB port")
+    parser.add_argument("--base-url", type=str, help="Base URL for GPTBlocks")
     parser.add_argument("--api-header", type=str, help="API header")
     parser.add_argument("--context", type=str, help="Context for DBChat - i.e. which client is this host connected to")
     args = parser.parse_args()
 
-    MYSQL_DATABASE = args.mysql_database or input("Enter MySQL database name: ")
-    MYSQL_USER = args.mysql_user or input("Enter MySQL username: ")
-    MYSQL_PASSWORD = args.mysql_password or input("Enter MySQL password: ")
-    HOST = args.host or input("Enter MySQL host: ")
+    if not (args.postgres ^ args.mysql):
+        raise ValueError("Please select exactly one of --postgres or --mysql")
+
+    DB_DATABASE = args.database or input("Enter database name: ")
+    DB_USER = args.user or input("Enter DB username: ")
+    DB_PASSWORD = args.password or input("Enter DB password: ")
+    HOST = args.host or input("Enter DB host: ")
+    DB_PORT = args.port or input("Enter DB port")
     BASE_URL = args.base_url or BASE_URL
     API_HEADER = args.api_header or input("Enter API header: ")
     CONTEXT = "DBChat:" + (args.context or "DEFAULT")
 
     def connect_to_mysql():
         cnx = mysql.connector.connect(
-            user=MYSQL_USER, password=MYSQL_PASSWORD, host=HOST, database=MYSQL_DATABASE
+            user=DB_USER, password=DB_PASSWORD, host=HOST, database=DB_DATABASE, port=DB_PORT
         )
         return cnx
+    
+    def connect_to_postgres():
+        cnx = psycopg2.connect(user=DB_USER, password=DB_PASSWORD, host=HOST, database=DB_DATABASE, port=DB_PORT)
+        return cnx
 
-    mysql_connection = connect_to_mysql()
+    conn = connect_to_mysql() if args.mysql else connect_to_postgres()
 
-    user_loop(args.audit, mysql_connection, CONTEXT, API_HEADER)
+    user_loop(args.audit, conn, CONTEXT, API_HEADER)

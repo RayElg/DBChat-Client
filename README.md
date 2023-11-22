@@ -1,12 +1,13 @@
 ## DBChat Client
 
-DBChat is an AI-assistant program integrated with a MySQL client. This project (DBChat Client) is the client that connects to the [GPTBlocks](https://gptblocks.co/dbchat) endpoint to handle assistant-requested SQL queries.
+DBChat is an AI-assistant program integrated with a database client. This project (DBChat Client) is the client that connects to the [GPTBlocks](https://gptblocks.co/dbchat) endpoint to handle assistant-requested SQL queries.
 
+Postgres & MySQL compatible databases are supported.
 
 ### Example
 
 ```
-$ python client.py --mysql-database=mydatabase --mysql-user myuser --mysql-password mypassword --host localhost --context mysql
+$ python client.py --mysql --database=mydatabase --user myuser --password mypassword --host localhost --port 3306 --context mysql
 Enter API header: Basic sk_...
 
 
@@ -29,7 +30,7 @@ ORDER BY total_revenue DESC;
 To run the DBChat Client, use the following command:
 
 ```bash
-python client.py [--audit] [--mysql-database <database>] [--mysql-user <username>] [--mysql-password <password>] [--host <host>] [--base-url <base_url>] [--context <identifier_for_client>] [--api-header <header>]
+python client.py [--mysql][--audit] [--database <database>] [--user <username>] [--password <password>] [--host <host>] [--port <port>] [--base-url <base_url>] [--context <identifier_for_client>] [--api-header <header>]
 ```
 
 
@@ -50,11 +51,14 @@ After both containers have started, you may proceed by chatting on gptblocks.
 
 The DBChat Client accepts the following arguments:
 
+* `--mysql`: Flag to connect using MySQL. Mutually exclusive with --postgres.
+* `--postgres`: Flag to connect using Postgres. Mutually exclusive with --mysql.
 * `--audit`: Enable audit mode. This mode allows you to approve or deny SQL queries before execution.
-* `--mysql-database <database>`: The name of the MySQL database to connect to. If not provided, the client will prompt for the database name.
-* `--mysql-user <username>`: The username for the MySQL connection. If not provided, the client will prompt for the username.
-* `--mysql-password <password>`: The password for the MySQL connection. If not provided, the client will prompt for the password.
-* `--host <host>`: The host for the MySQL connection. If not provided, the client will prompt for the host.
+* `--database <database>`: The name of the DB database to connect to. If not provided, the client will prompt for the database name.
+* `--user <username>`: The username for the DB connection. If not provided, the client will prompt for the username.
+* `--password <password>`: The password for the DB connection. If not provided, the client will prompt for the password.
+* `--host <host>`: The host for the DB connection. If not provided, the client will prompt for the host.
+* `--port <port>`: The port for the DB connection.  If not provided, the client will prompt for the port.
 * `--base-url <base_url>`: The base URL for the GPTBlocks endpoint. If not provided, the client will use the default value.
 * `--context <identifier_for_client>`: The identifier for this client. When users use your DBChat, this is how they will specify the desired client to send queries to.
 * `--api-header <header>`: The API header for authentication. If not provided, the client will prompt for the header.
@@ -82,10 +86,12 @@ Basic sk_abcdefghi
 
 * Try asking the AI to generate views or markdown reports for you
 
+* For an always-online client, set up a small EC2 instance connected to your data warehouse
+
 ### Todo
 
 * [x] Integrate with OpenAI, mysql
-* [ ] Integrate more databases to expand the client's compatibility.
+* [x] Integrate more databases to expand the client's compatibility.
 * [ ] Develop a cloud version of the client that can be self-hosted or used as a service.
 * [ ] Add support for code execution, DBT (Data Build Tool), and other related functionalities.
 * [x] Per-database context

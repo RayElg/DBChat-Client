@@ -7,7 +7,7 @@ services:
     working_dir: /app
     image: python:latest
     command: >
-      sh -c "pip install -r requirements.txt && python client.py --mysql-database=mydatabase --mysql-user myuser --mysql-password mypassword --host mysql --context DEFAULT --api-header \"Basic ${GPTBLOCKS_API_KEY}\""
+      sh -c "pip install -r requirements.txt && python client.py --mysql --database mydatabase --user myuser --password mypassword --host mysql --port 3306 --context DEFAULT --api-header \"Basic ${GPTBLOCKS_API_KEY}\""
     depends_on:
       mysql:
         condition: service_healthy
