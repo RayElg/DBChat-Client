@@ -1,8 +1,10 @@
 import time
+import simplejson as json
 import requests
 import mysql.connector
 import psycopg2
 from quickchart import QuickChart
+
 BASE_URL = "https://gptblocks.co/dbchat/api"
 
 
@@ -19,13 +21,16 @@ def query_from_payload(payload, conn):
     except Exception as e:
         return {"res": str(e)}
 
-#Currently supports 1 dataset (one y_data col)
+
+# Currently supports 1 dataset (one y_data col)
 def chart_from_payload(payload, conn):
     res = query_from_payload(payload, conn)
     if isinstance(res, list):
         if (len(res) > 50) or (len(res) == 0):
-            return {"res": f"Charts must have 1 to 50 rows. Your query returned {len(res)} rows"}
-        if (len(res[0]) != 2):
+            return {
+                "res": f"Charts must have 1 to 50 rows. Your query returned {len(res)} rows"
+            }
+        if len(res[0]) != 2:
             return {"res": f"Charts must have exactly 2 columns"}
         x_data = [item[0] for item in res]
         y_data = [item[1] for item in res]
@@ -34,26 +39,35 @@ def chart_from_payload(payload, conn):
         qc.width = 500
         qc.height = 300
         qc.config = {
-            "type": payload.get("chart_type", "bar"),  # default to bar chart if not specified in opts
+            "type": payload.get(
+                "chart_type", "bar"
+            ),  # default to bar chart if not specified in opts
             "data": {
                 "labels": x_data,
-                "datasets": [{
-                    "label": payload.get("chart_label", "Values"),  # default to 'Values' if not specified in opts
-                    "data": y_data,
-                }]
+                "datasets": [
+                    {
+                        "label": payload.get(
+                            "chart_label", "Values"
+                        ),  # default to 'Values' if not specified in opts
+                        "data": y_data,
+                    }
+                ],
             },
             "options": {
                 "title": {
                     "display": True,
-                    "text": payload.get("chart_title", "Chart Title"),  # default to 'Chart Title' if not specified in opts
+                    "text": payload.get(
+                        "chart_title", "Chart Title"
+                    ),  # default to 'Chart Title' if not specified in opts
                 },
-            }
+            },
         }
+        qc.config = json.dumps(qc.config)  # Avoids type errors. Using simplejson instead of json for its Decimal type support
 
         return {"image_url": qc.get_url()}
     else:
         return {"res": f"non-chartable response from query: {res}"}
-    
+
 
 def get_db_tool_calls(runId, threadId, api_header):
     results = requests.post(
@@ -68,7 +82,9 @@ def get_db_tool_calls(runId, threadId, api_header):
 
 
 def poll_for_runs(context, api_header):
-    results = requests.get(f"{BASE_URL}/poll?context={context}", headers={"Authorization": api_header})
+    results = requests.get(
+        f"{BASE_URL}/poll?context={context}", headers={"Authorization": api_header}
+    )
     if results.status_code == 200:
         return results.json()
     else:
@@ -120,7 +136,12 @@ def user_loop(audit, conn, context, api_header):
                         )
                     else:
                         for toolcall in tool_calls:
-                            call_res = query_from_payload(toolcall, conn) if toolcall.get("function_called", "execute_query") == "execute_query" else chart_from_payload(toolcall, conn)
+                            call_res = (
+                                query_from_payload(toolcall, conn)
+                                if toolcall.get("function_called", "execute_query")
+                                == "execute_query"
+                                else chart_from_payload(toolcall, conn)
+                            )
                             tool_res = {
                                 "tool_call_id": toolcall["call_id"],
                                 "output": str(call_res),
@@ -165,12 +186,22 @@ if __name__ == "__main__":
 
     def connect_to_mysql():
         cnx = mysql.connector.connect(
-            user=DB_USER, password=DB_PASSWORD, host=HOST, database=DB_DATABASE, port=DB_PORT
+            user=DB_USER,
+            password=DB_PASSWORD,
+            host=HOST,
+            database=DB_DATABASE,
+            port=DB_PORT,
         )
         return cnx
-    
+
     def connect_to_postgres():
-        cnx = psycopg2.connect(user=DB_USER, password=DB_PASSWORD, host=HOST, database=DB_DATABASE, port=DB_PORT)
+        cnx = psycopg2.connect(
+            user=DB_USER,
+            password=DB_PASSWORD,
+            host=HOST,
+            database=DB_DATABASE,
+            port=DB_PORT,
+        )
         return cnx
 
     conn = connect_to_mysql() if args.mysql else connect_to_postgres()
