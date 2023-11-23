@@ -62,7 +62,10 @@ def chart_from_payload(payload, conn):
                 },
             },
         }
-        qc.config = json.dumps(qc.config)  # Avoids type errors. Using simplejson instead of json for its Decimal type support
+        try:
+            qc.config = json.dumps(qc.config)  # Avoids type errors. Using simplejson instead of json for its Decimal type support
+        except Exception as e:
+            return {"res": f"failed to convert data to a chart: {e}"} # Some data types are still not JSON encodable
 
         return {"image_url": qc.get_url()}
     else:
