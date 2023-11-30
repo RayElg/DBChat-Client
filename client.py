@@ -17,14 +17,17 @@ def query_from_payload(payload, conn):
         cursor.close()
         if result is None:
             return {"res": "OK"}
-        return result
+        return {"res": result, "columns_description": cursor.description}
     except Exception as e:
+        if hasattr(conn, "rollback"):
+            conn.rollback()
+            return {"res": str(e) + ". Transaction rolled back."}
         return {"res": str(e)}
 
 
 # Currently supports 1 dataset (one y_data col)
 def chart_from_payload(payload, conn):
-    res = query_from_payload(payload, conn)
+    res = query_from_payload(payload, conn)["res"]
     if isinstance(res, list):
         if (len(res) > 50) or (len(res) == 0):
             return {
@@ -65,7 +68,7 @@ def chart_from_payload(payload, conn):
         try:
             qc.config = json.dumps(qc.config)  # Avoids type errors. Using simplejson instead of json for its Decimal type support
         except Exception as e:
-            return {"res": f"failed to convert data to a chart: {e}"} # Some data types are still not JSON encodable
+            return {"res": f"failed to convert data to a chart: {e}. Hint: cast queried columns to string or number types."} # Some data types are still not JSON encodable
 
         return {"image_url": qc.get_url()}
     else:
